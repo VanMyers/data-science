@@ -6,7 +6,7 @@ output: github_document
 time: 10
 reading: 0
 ---
-
+TEST CHANGE
 # Reproducibility: Setup
 
 *Purpose*: We're going to need a lot of tools to make it through this class, you and I. This pre-class exercise will get you signed up for all the (free) accounts you'll need for the class.
