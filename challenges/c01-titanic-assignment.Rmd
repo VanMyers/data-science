@@ -1,7 +1,7 @@
 ---
 title: "RMS Titanic"
-author: "(Your name here)"
-date: 2020-
+author: Van Myers
+date: 2023-Feb-1
 output:
   github_document:
     toc: true
@@ -14,24 +14,28 @@ prerequisites:
 *Reading*: (Optional) [Wikipedia article](https://en.wikipedia.org/wiki/RMS_Titanic) on the RMS Titanic.
 
 <!-- include-rubric -->
+
 # Grading Rubric
+
 <!-- -------------------------------------------------- -->
 
 Unlike exercises, **challenges will be graded**. The following rubrics define how you will be graded, both on an individual and team basis.
 
 ## Individual
+
 <!-- ------------------------- -->
 
-| Category | Needs Improvement | Satisfactory |
-|----------|----------------|--------------|
-| Effort | Some task __q__'s left unattempted | All task __q__'s attempted |
-| Observed | Did not document observations, or observations incorrect | Documented correct observations based on analysis |
-| Supported | Some observations not clearly supported by analysis | All observations clearly supported by analysis (table, graph, etc.) |
-| Assessed | Observations include claims not supported by the data, or reflect a level of certainty not warranted by the data | Observations are appropriately qualified by the quality & relevance of the data and (in)conclusiveness of the support |
-| Specified | Uses the phrase "more data are necessary" without clarification | Any statement that "more data are necessary" specifies which *specific* data are needed to answer what *specific* question |
-| Code Styled | Violations of the [style guide](https://style.tidyverse.org/) hinder readability | Code sufficiently close to the [style guide](https://style.tidyverse.org/) |
+| Category    | Needs Improvement                                                                                                | Satisfactory                                                                                                               |
+|------------------|-----------------------------|-------------------------|
+| Effort      | Some task **q**'s left unattempted                                                                               | All task **q**'s attempted                                                                                                 |
+| Observed    | Did not document observations, or observations incorrect                                                         | Documented correct observations based on analysis                                                                          |
+| Supported   | Some observations not clearly supported by analysis                                                              | All observations clearly supported by analysis (table, graph, etc.)                                                        |
+| Assessed    | Observations include claims not supported by the data, or reflect a level of certainty not warranted by the data | Observations are appropriately qualified by the quality & relevance of the data and (in)conclusiveness of the support      |
+| Specified   | Uses the phrase "more data are necessary" without clarification                                                  | Any statement that "more data are necessary" specifies which *specific* data are needed to answer what *specific* question |
+| Code Styled | Violations of the [style guide](https://style.tidyverse.org/) hinder readability                                 | Code sufficiently close to the [style guide](https://style.tidyverse.org/)                                                 |
 
 ## Due Date
+
 <!-- ------------------------- -->
 
 All the deliverables stated in the rubrics above are due **at midnight** before the day of the class discussion of the challenge. See the [Syllabus](https://docs.google.com/document/d/1qeP6DUS8Djq_A0HMllMqsSqX3a9dbcx1/edit?usp=sharing&ouid=110386251748498665069&rtpof=true&sd=true) for more information.
@@ -45,19 +49,21 @@ df_titanic <- as_tibble(Titanic)
 *Background*: The RMS Titanic sank on its maiden voyage in 1912; about 67% of its passengers died.
 
 # First Look
+
 <!-- -------------------------------------------------- -->
 
-### __q1__ Perform a glimpse of `df_titanic`. What variables are in this dataset?
+### **q1** Perform a glimpse of `df_titanic`. What variables are in this dataset?
 
 ```{r q1-task}
 ## TASK: Perform a `glimpse` of df_titanic
+glimpse(df_titanic)
 ```
 
 **Observations**:
 
-- (List all variables here)
+-   Class, Sex, Age, Age, Survived, n
 
-### __q2__ Skim the [Wikipedia article](https://en.wikipedia.org/wiki/RMS_Titanic) on the RMS Titanic, and look for a total count of souls aboard. Compare against the total computed below. Are there any differences? Are those differences large or small? What might account for those differences?
+### **q2** Skim the [Wikipedia article](https://en.wikipedia.org/wiki/RMS_Titanic) on the RMS Titanic, and look for a total count of souls aboard. Compare against the total computed below. Are there any differences? Are those differences large or small? What might account for those differences?
 
 ```{r q2-summary}
 ## NOTE: No need to edit! We'll cover how to
@@ -67,26 +73,38 @@ df_titanic %>% summarize(total = sum(n))
 
 **Observations**:
 
-- Write your observations here
-- Are there any differences?
-  - (Your response here)
-- If yes, what might account for those differences?
-  - (Your response here)
-  - ...
+-   Write your observations here
+-   Are there any differences?
+    -   There is a difference of 23 more people reported by the Wikipedia estimate.
+-   If yes, what might account for those differences?
+    -   They appear to be using a different data set. That data set combines sexes of children and reports a dead first class child which the data set in R does not.
+    -   These data are estimations so it could just be estimations that used different methodology or one is more up to date.
 
-### __q3__ Create a plot showing the count of persons who *did* survive, along with aesthetics for `Class` and `Sex`. Document your observations below.
+### **q3** Create a plot showing the count of persons who *did* survive, along with aesthetics for `Class` and `Sex`. Document your observations below.
 
 *Note*: There are many ways to do this.
 
 ```{r q3-task}
 ## TASK: Visualize counts against `Class` and `Sex`
+
+df_titanic %>%
+  filter(Survived == "Yes") %>%
+  ggplot(aes(x = Sex, y = n, fill = Class)) +
+  geom_col()
 ```
 
 **Observations**:
 
-- Write your observations here
+-   n.b. I'm using the language of gender in place of sex because the former is awkward. I also suspect there is no practical difference in these data and the source may be making the same conflation I am.
+-   More men survived than women.
+-   Of those surviving men, a narrow majority were crew.
+-   Few crew are among the surviving women.
+-   Instead, there is a plurality of 1st class passengers among surviving women.
+-   Very few 2nd class men survived.
+-   The number of 3rd class survivors is most similar across sex when compared to other classes.
 
 # Deeper Look
+
 <!-- -------------------------------------------------- -->
 
 Raw counts give us a sense of totals, but they are not as useful for understanding differences between groups. This is because the differences we see in counts could be due to either the relative size of the group OR differences in outcomes for those groups. To make comparisons between groups, we should also consider *proportions*.[1]
@@ -103,35 +121,73 @@ df_prop <-
     Total = sum(n),
     Prop = n / Total
   ) %>%
+  filter(!is.nan(Prop)) %>% # there are no crew children lets ignore those groups
   ungroup()
 df_prop
 ```
 
-### __q4__ Replicate your visual from q3, but display `Prop` in place of `n`. Document your observations, and note any new/different observations you make in comparison with q3. Is there anything *fishy* in your plot?
+### **q4** Replicate your visual from q3, but display `Prop` in place of `n`. Document your observations, and note any new/different observations you make in comparison with q3. Is there anything *fishy* in your plot?
 
 ```{r q4-task}
+df_prop %>%
+  filter(Survived == "Yes") %>%
+  ggplot(aes(x = Sex, y = Prop, fill = Class)) +
+  geom_col(position = "dodge")
+
+df_prop %>%
+  filter(Survived == "Yes")
+
+# This is a fixed version to satisfy the objective without changing which
+# variables the plot displays
+
+df_no_age <-
+  df_titanic %>%
+  group_by(Class, Sex) %>%
+  mutate(
+    Total = sum(n),
+    Prop = n / Total
+  ) %>%
+  ungroup()
+
+df_no_age %>%
+  filter(Survived == "Yes") %>%
+  ggplot(aes(x = Sex, y = Prop, fill = Class)) +
+  geom_col(position = "dodge")
 ```
 
 **Observations**:
 
-- Write your observations here.
-- Is there anything *fishy* going on in your plot?
-  - (Your response here)
+-   This plot says all first and seconds class passengers survived which I suspect is wrong.
+-   About 87% of female crew members survived.
+-   Male crew members were less likely to survive than male 3rd class passengers while the opposite was true for female 3rd class passengers and crew members.
+-   Is there anything *fishy* going on in your plot?
+    -   Simple subsitution is not sufficient. Prop is calculated within Class, Sex, and Age but the plot is adding proportions within Sex. This results in proportions that appear to be 1 because `ggplot` sees the `Prop` values for children first and plots those. Changing the position to `dodge` to more appropriately display proportions does not fix this. The plot isn't appropriate, but it appears I am not supposed to fix this until the next part.
 
-### __q5__ Create a plot showing the group-proportion of occupants who *did* survive, along with aesthetics for `Class`, `Sex`, *and* `Age`. Document your observations below.
+### **q5** Create a plot showing the group-proportion of occupants who *did* survive, along with aesthetics for `Class`, `Sex`, *and* `Age`. Document your observations below.
 
 *Hint*: Don't forget that you can use `facet_grid` to help consider additional variables!
 
 ```{r q5-task}
+df_prop %>%
+  filter(Survived == "Yes") %>%
+  ggplot(aes(x = Sex, y = Prop, fill = Class)) +
+  geom_col(position = "dodge") +
+  facet_wrap(~ Age)
 ```
 
 **Observations**:
 
-- (Write your observations here.)
-- If you saw something *fishy* in q4 above, use your new plot to explain the fishy-ness.
-  - (Your response here)
+-   All first and second class children survived
+-   Under 50% of female 3rd class children survived and just over 25% of male 3rd class children survived
+-   Very few adult men survived. Still about 30% of first class men did, more than 3rd class boys.
+-   Among adult men, a higher proportion of third class passengers survived than second class, and an even higher proportion of male crew survived (still less than 25%).
+-   Almost all adult first class women survived and about 87% in second class and among crew. A slightly higher proportion of crew survived than second class.
+-   The proportion of surviving third class adult women and girls is approximately the same. This is the only case of where this is true.
+-   If you saw something *fishy* in q4 above, use your new plot to explain the fishy-ness.
+    -   Explained above. The plotting function plots the first value it sees matching the aesthetics, so it plots the proportions among children only except for crew.
 
 # Notes
+
 <!-- -------------------------------------------------- -->
 
 [1] This is basically the same idea as [Dimensional Analysis](https://en.wikipedia.org/wiki/Dimensional_analysis); computing proportions is akin to non-dimensionalizing a quantity.
