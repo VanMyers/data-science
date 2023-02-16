@@ -41,6 +41,9 @@ All the deliverables stated in the rubrics above are due **at midnight** before 
 ```{r setup}
 library(tidyverse)
 library(gapminder)
+library(ggrepel)
+library(gganimate)
+library(av)
 
 ```
 
@@ -105,19 +108,19 @@ print("Nice!")
 
 You may encounter difficulties in visualizing these data; if so document your challenges and attempt to produce the most informative visual you can.
 
-```{r q2-task}
+```{r q2-task, message=TRUE, warning=TRUE}
 ## TASK: Create a visual of gdpPercap vs continent
 gapminder %>%
   filter(year == year_min) %>%
   filter(gdpPercap < 30000) %>%
   ggplot(aes(x = gdpPercap, color = continent)) +
-  geom_density()
+    geom_density()
 
 gapminder %>%
   filter(year == year_min) %>%
   filter(gdpPercap < 30000) %>%
   ggplot(aes(x = gdpPercap, color = continent)) +
-  geom_boxplot()
+    geom_boxplot()
 ```
 
 **Observations**:
@@ -134,12 +137,22 @@ gapminder %>%
 
 ```{r q3-task}
 ## TASK: Identify the outliers from q2
+find_outlier <- function(x) {
+  return(x < quantile(x, .25) - 1.5*IQR(x) | x > quantile(x, .75) + 1.5*IQR(x))
+}
+
+gapminder %>%
+  group_by(continent) %>%
+  filter(year == year_min) %>%
+  mutate(outlier = find_outlier(gdpPercap)) %>%
+  filter(outlier)
+  
 ```
 
 **Observations**:
 
 -   Identify the outlier countries from q2
-    -   (Your response here)
+    -   Angola, Bahrain, Canada, Gabon, Kuwait, South Africa, Switzerland, United States, and Venezuela
 
 *Hint*: For the next task, it's helpful to know a ggplot trick we'll learn in an upcoming exercise: You can use the `data` argument inside any `geom_*` to modify the data that will be plotted *by that geom only*. For instance, you can use this trick to filter a set of points to label:
 
@@ -163,6 +176,37 @@ gapminder %>%
 
 ```{r q4-task}
 ## TASK: Create a visual of gdpPercap vs continent
+gapminder %>%
+  group_by(continent) %>%
+  filter(year == year_min) %>%
+  mutate(outlier = find_outlier(gdpPercap)) %>%
+  ggplot(aes(x = gdpPercap, y = continent, color = continent)) +
+    geom_boxplot() + 
+    geom_label_repel(
+      data = . %>% filter(outlier),
+      aes(label = country),
+    ) +
+    geom_label_repel(
+      data = . %>% filter(country == "Kuwait"),
+      aes(label = gdpPercap),
+      nudge_y = -.35
+    ) +
+    coord_cartesian(xlim = c(0, 15000)) +
+    theme(legend.position = "none")
+
+
+gapminder %>%
+  group_by(continent) %>%
+  filter(year == year_max) %>%
+  mutate(outlier = find_outlier(gdpPercap)) %>%
+  ggplot(aes(x = gdpPercap, y = continent, color = continent)) +
+    geom_boxplot() + 
+    geom_label_repel(
+      data = . %>% filter(outlier),
+      aes(label = country),
+      max.overlaps = 20
+    ) +
+    theme(legend.position = "none")
 ```
 
 **Observations**:
@@ -176,6 +220,49 @@ gapminder %>%
 Now it's your turn! We just went through guided EDA considering the GDP per capita at two time points. You can continue looking at outliers, consider different years, repeat the exercise with `lifeExp`, consider the relationship between variables, or something else entirely.
 
 ### **q5** Create *at least* three new figures below. With each figure, try to pose new questions about the data.
+
+```{r q5-misc-exploration}
+
+gapminder %>%
+  ggplot(aes(x=lifeExp, y = gdpPercap, color = continent, label = country)) +
+    geom_point() +
+    geom_label_repel(
+      data = . %>% filter(gdpPercap > 58000),
+      show.legend = FALSE
+    )
+
+no_kuwait <-
+  gapminder %>%
+  filter(country != "Kuwait") %>%
+  ggplot(aes(x=lifeExp, y = gdpPercap, color = continent, label = country)) +
+    geom_point()
+
+no_kuwait
+no_kuwait + facet_wrap(~ year)
+
+
+anim <-
+  no_kuwait + 
+  transition_states(
+    year,
+    transition_length = 2,
+    state_length = 0,
+    wrap = FALSE
+  ) +
+  ease_aes('linear') +
+  ggtitle('{closest_state}')
+
+```
+
+```{r render-anim}
+
+animate(
+  anim,
+  fps = 24, duration = 5,
+  width = 1920, height = 1080, units = "px",
+  renderer = av_renderer()
+)
+```
 
 ```{r q5-task1}
 ## TASK: Your first graph
