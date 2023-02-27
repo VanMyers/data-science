@@ -100,6 +100,7 @@ library(gapminder)
 library(ggrepel)
 library(gganimate)
 library(av)
+library(gifski)
 ```
 
 *Background*: [Gapminder](https://www.gapminder.org/about-gapminder/) is
@@ -716,8 +717,12 @@ no_kuwait <-
   gapminder %>%
   filter(country != "Kuwait") %>%
   ggplot(aes(x=lifeExp, y = gdpPercap, color = continent, label = country)) +
-    geom_point()
-
+    geom_point() +
+    theme_minimal(base_size = 11) +
+    labs(
+      x = "Life Expectancy",
+      y = "GDP Per Capita",
+    )
 no_kuwait
 ```
 
@@ -730,6 +735,21 @@ no_kuwait + facet_wrap(~ year)
 ![](c04-gapminder-assignment_files/figure-gfm/q5-additional-exploration-8.png)<!-- -->
 
 ``` r
+no_kuwait +
+  theme_minimal(base_size = 20)
+```
+
+![](c04-gapminder-assignment_files/figure-gfm/q5-additional-exploration-9.png)<!-- -->
+
+``` r
+ggsave(
+  filename = "test.png",
+  path = "c04-gapminder-assignment_files",
+  plot = no_kuwait,
+  width = 16, height = 9, units = "in", dpi = 120
+)
+
+
 anim <-
   no_kuwait +
   transition_states(
@@ -743,10 +763,12 @@ anim <-
 ```
 
 ``` r
-# animate(
-#   anim,
-#   fps = 24, duration = 5,
-#   width = 1920, height = 1080, units = "px",
-#   renderer = av_renderer()
-# )
+animate(
+  anim,
+  fps = 30, duration = 10,
+  width = 16, height = 9, units = "in", res = 120,
+  renderer = gifski_renderer()
+)
 ```
+
+![](c04-gapminder-assignment_files/figure-gfm/render-animation-1.gif)<!-- -->
