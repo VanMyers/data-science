@@ -341,7 +341,14 @@ gapminder %>%
 
 **Observations**:
 
-- Write your observations here
+- Everyone is way richer
+- Africa is still really poor
+- Asia experienced the moist growth
+- The bulk of Europe joined the rest of the richest countries, which are
+  less distant from poor countries than they were in the earliest year
+- Many outliers dissapeared. I’m not sure if this is a reduction in
+  inequality or the US couping anyone that got too far out of place.
+  Also some of the wealth may just have been unstable.
 
 # Your Own EDA
 
@@ -353,53 +360,6 @@ consider different years, repeat the exercise with `lifeExp`, consider
 the relationship between variables, or something else entirely.
 
 ### **q5** Create *at least* three new figures below. With each figure, try to pose new questions about the data.
-
-``` r
-# 
-# gapminder %>%
-#   ggplot(aes(x=lifeExp, y = gdpPercap, color = continent, label = country)) +
-#     geom_point() +
-#     geom_label_repel(
-#       data = . %>% filter(gdpPercap > 58000),
-#       show.legend = FALSE
-#     )
-# 
-# no_kuwait <-
-#   gapminder %>%
-#   filter(country != "Kuwait") %>%
-#   ggplot(aes(x=lifeExp, y = gdpPercap, color = continent, label = country)) +
-#     geom_point()
-# 
-# no_kuwait
-# no_kuwait + facet_wrap(~ year)
-# 
-# 
-# anim <-
-#   no_kuwait + 
-#   transition_states(
-#     year,
-#     transition_length = 2,
-#     state_length = 0,
-#     wrap = FALSE
-#   ) +
-#   ease_aes('linear') +
-#   ggtitle('{closest_state}')
-
-# animate(
-#   anim,
-#   fps = 24, duration = 5,
-#   width = 1920, height = 1080, units = "px",
-#   renderer = av_renderer()
-# )
-
-# time_cor <-
-#   gapminder %>%
-#   group_by(country) %>%
-#   mutate(
-#     rho_life = cor(year, lifeExp, method = "spearman"),
-#     rho_gdp = cor(year, gdpPercap, method = "spearman")
-#     )
-```
 
 ``` r
 gapminder %>%
@@ -459,42 +419,334 @@ gapminder %>%
 
 ``` r
 ## TASK: Your second graph
-time_cor <-
+
+# Calculation
+gapminder_plus_stability <-
   gapminder %>%
   group_by(country) %>%
   mutate(
-    rho_year_life = cor(year, lifeExp, method = "spearman"),
-    rho_year_gdp = cor(year, gdpPercap, method = "spearman"),
-    rho_life_gdp = cor(lifeExp, gdpPercap, method = "spearman")
+    lifeExp_stability = cor(year, lifeExp, method = "spearman"),
+    gdpPercap_stability = cor(year, gdpPercap, method = "spearman"),
+    rho_lifeExp_gdpPercap = cor(lifeExp, gdpPercap, method = "spearman"),
+    total_stability = lifeExp_stability + gdpPercap_stability
     )
 
-time_cor %>%
-  ggplot(aes(x = continent, y = rho_year_life, color = continent)) +
-    geom_boxplot()
+stability <-
+  gapminder_plus_stability %>%
+  filter(continent != "Oceania") %>%
+  filter(year == 2007)
+
+# Plotting
+
+stability %>%
+  ggplot(aes(x = continent, y = lifeExp_stability, color = continent)) +
+    geom_boxplot(show.legend = FALSE)
 ```
 
 ![](c04-gapminder-assignment_files/figure-gfm/q5-task2-1.png)<!-- -->
 
 ``` r
-time_cor %>%
-  ggplot(aes(x = continent, y = rho_year_gdp, color = continent)) +
-    geom_boxplot()
+stability %>%
+  group_by(continent) %>%
+  mutate(outlier = find_outlier(lifeExp_stability)) %>%
+  ggplot(aes(y = lifeExp_stability, color = continent)) +
+    geom_boxplot() +
+    geom_label_repel(
+      data = . %>% filter(outlier),
+      aes(label = country, x = 0),
+      max.overlaps = 12,
+    ) +
+  facet_wrap(~ continent) +
+  theme(
+    axis.text.x=element_blank(),
+    axis.ticks.x=element_blank(),
+    legend.position = "none"
+  )
 ```
 
 ![](c04-gapminder-assignment_files/figure-gfm/q5-task2-2.png)<!-- -->
 
 ``` r
-time_cor %>%
-  ggplot(aes(x = continent, y = rho_life_gdp, color = continent)) +
-    geom_boxplot()
+# stability %>%
+#   select(c(country, continent, lifeExp_stability, gdpPercap_stability)) %>%
+#   arrange(lifeExp_stability)
+
+stability %>%
+  ggplot(aes(x = continent, y = gdpPercap_stability, color = continent)) +
+    geom_boxplot(show.legend = FALSE)
 ```
 
 ![](c04-gapminder-assignment_files/figure-gfm/q5-task2-3.png)<!-- -->
 
-- (Your notes and observations here)
+``` r
+stability %>%
+  group_by(continent) %>%
+  mutate(outlier = find_outlier(gdpPercap_stability)) %>%
+  ggplot(aes(y = gdpPercap_stability, color = continent)) +
+    geom_boxplot() +
+    geom_label_repel(
+      data = . %>% filter(outlier),
+      aes(label = country, x = 0),
+      max.overlaps = 12,
+    ) +
+  facet_wrap(~ continent) +
+  theme(
+    axis.text.x=element_blank(),
+    axis.ticks.x=element_blank(),
+    legend.position = "none"
+  )
+```
+
+![](c04-gapminder-assignment_files/figure-gfm/q5-task2-4.png)<!-- -->
+
+``` r
+# stability %>%
+#   select(c(country, continent, gdpPercap_stability, lifeExp_stability)) %>%
+#   arrange(gdpPercap_stability)
+
+# stability %>%
+#   select(
+#     c(
+#       country,
+#       continent,
+#       total_stability,
+#       gdpPercap_stability,
+#       lifeExp_stability
+#       )
+#     ) %>%
+#   arrange(total_stability)
+```
+
+- I’ve used the spearman correlation to describe an assumption I think
+  is reasonable - I would expect a geopolitically stable country to
+  experience an increasing `gdpPercap` and `lifeExp` as time passes. The
+  spearman correlation tells us how true this is without looking at the
+  rate of increase which varies depending on the state of development of
+  a country. This would be worth investigating but seemed difficult with
+  only 6 time points.
+- I am going to call this measure “stability”. Stability is how
+  consistently `lifeExp` and `gdpPercap` increase each year irrespective
+  of how much of an increase occurs.
+- Africa is by far the most unstable continent in terms of both
+  `lifeExp` and `gdpPercap`.
+- Outside of Africa, anything less than `1` is considered an outlier for
+  `lifeExp_stability`.
+- `lifeExp` is far more stable than `gdpPercap`. This makes sense as
+  economic turmoil is more common than the type of violence or poverty
+  that would decrease life expectancy.
+- Because `lifeExp` is broadly more stable with less spread there are
+  more outliers.
+- All outliers in Europe are Eastern European countries. This brings in
+  to question the practice of continent grouping which is ultimately
+  arbitrary as there are political and cultural regions that are likely
+  more relevant.
+- Funny enough, every single country in Asia and the Americas that is an
+  outlier in terms of `gdpPercap_stability` was couped or invaded by the
+  US!
+- Eastern Europe is also the US’s fault but there were a number of
+  separate events (largely the rise of capitalism and balkanization)
+- Few countries in Africa and the Americas experienced consistent year
+  over year growth in `gdpPercap`. Feels like another
+  imperialism/colonialism moment.
 
 ``` r
 ## TASK: Your third graph
+
+stability %>%
+  ggplot(aes(
+    x = gdpPercap_stability,
+    y = lifeExp_stability,
+    color = continent
+    )) +
+  geom_point()
 ```
 
-- (Your notes and observations here)
+![](c04-gapminder-assignment_files/figure-gfm/q5-task3-1.png)<!-- -->
+
+``` r
+stability %>%
+  filter(gdpPercap_stability == 1 & lifeExp_stability < 1)
+```
+
+    ## # A tibble: 5 × 10
+    ## # Groups:   country [5]
+    ##   country   conti…¹  year lifeExp    pop gdpPe…² lifeE…³ gdpPe…⁴ rho_l…⁵ total…⁶
+    ##   <fct>     <fct>   <int>   <dbl>  <int>   <dbl>   <dbl>   <dbl>   <dbl>   <dbl>
+    ## 1 Botswana  Africa   2007    50.7 1.64e6  12570.   0.154       1   0.154    1.15
+    ## 2 Denmark   Europe   2007    78.3 5.47e6  35278.   0.993       1   0.993    1.99
+    ## 3 Netherla… Europe   2007    79.8 1.66e7  36798.   0.993       1   0.993    1.99
+    ## 4 Norway    Europe   2007    80.2 4.63e6  49357.   0.993       1   0.993    1.99
+    ## 5 Puerto R… Americ…  2007    78.7 3.94e6  19329.   0.993       1   0.993    1.99
+    ## # … with abbreviated variable names ¹​continent, ²​gdpPercap, ³​lifeExp_stability,
+    ## #   ⁴​gdpPercap_stability, ⁵​rho_lifeExp_gdpPercap, ⁶​total_stability
+
+- While making some of these plots I noticed a limit to my methodology.
+  The spearman correlation doesn’t weight a single precipitous drop as
+  highly as a couple years of gradual decline. This means we will notice
+  certain types of instability but might not highlight major turmoil if
+  the country recovers quickly.
+- This last plot really should be in a separate section or the others
+  should be removed, by I like them all.
+- A lot of countries have consistently increasing `lifeExp` (stability
+  = 1) but less stable `gdpPercap`.
+- Other than the concentration at `lifeExp_stability = 1` the
+  distribution of points appears to be fairly random.
+- Only one country has perfect `gdpPercap_stability` but poor (\<.9)
+  `lifeExp_stability` . Three of the four countries where
+  `gdpPercap_stability = 1` but `lifeExp_stability < 1` are Nordic
+  countries which are known for their extreme wealth (from exploiting
+  the third world) and strong health. This may represent them stagnating
+  because they are waiting on new technology to increase lifespan and
+  almost everything we can achieve with current technology is already in
+  place there. Peurto Rico also shows up which I can’t quite explain but
+  they also enjoy a high life expectancy despite being less wealthy.
+  Also natural disaster could have come into play.
+
+``` r
+stability %>%
+  group_by(continent) %>%
+  mutate(outlier = find_outlier(total_stability)) %>%
+  ggplot(aes(x = total_stability, color = continent)) +
+    geom_density()
+```
+
+![](c04-gapminder-assignment_files/figure-gfm/q5-additional-exploration-1.png)<!-- -->
+
+``` r
+stability %>%
+  group_by(continent) %>%
+  mutate(outlier = find_outlier(total_stability)) %>%
+  ggplot(aes(x = total_stability, color = continent)) +
+    geom_density() +
+    geom_point(
+      aes(x = total_stability, y = 0),
+      size = 1
+    ) +
+    geom_point(
+      data = . %>% filter(outlier),
+      aes(x = total_stability, y = 0),
+      size = 3
+    ) # +
+```
+
+![](c04-gapminder-assignment_files/figure-gfm/q5-additional-exploration-2.png)<!-- -->
+
+``` r
+    # geom_label_repel(
+    #     data = . %>% filter(outlier),
+    #     aes(label = country, x = total_stability, y = 0),
+    # )
+
+stability %>%
+  group_by(continent) %>%
+  mutate(outlier = find_outlier(gdpPercap_stability)) %>%
+  ggplot(aes(x = gdpPercap_stability, color = continent)) +
+    geom_density()
+```
+
+![](c04-gapminder-assignment_files/figure-gfm/q5-additional-exploration-3.png)<!-- -->
+
+``` r
+stability %>%
+  group_by(continent) %>%
+  mutate(outlier = find_outlier(gdpPercap_stability)) %>%
+  ggplot(aes(x = gdpPercap_stability, color = continent)) +
+    geom_density() +
+    geom_point(
+      aes(x = gdpPercap_stability, y = 0),
+      size = 1
+    ) +
+    geom_point(
+      data = . %>% filter(outlier),
+      aes(x = gdpPercap_stability, y = 0),
+      size = 3
+    ) # +
+```
+
+![](c04-gapminder-assignment_files/figure-gfm/q5-additional-exploration-4.png)<!-- -->
+
+``` r
+    # geom_label_repel(
+    #     data = . %>% filter(outlier),
+    #     aes(label = country, x = gdpPercap_stability, y = 0),
+    # )
+
+# gapminder_plus_stability <-
+#   gapminder %>%
+#   filter(continent != "Oceana") %>%
+#   group_by(country) %>%
+#   mutate(
+#     lifeExp_stability = cor(year, lifeExp, method = "pearson"),
+#     gdpPercap_stability = cor(year, gdpPercap, method = "pearson"),
+#     rho_lifeExp_gdpPercap = cor(lifeExp, gdpPercap, method = "pearson")
+#     )
+
+
+gapminder_plus_stability %>%
+  ggplot(aes(x = year, y = lifeExp, group = country, color = continent)) +
+    geom_line(
+      data = . %>% filter(lifeExp_stability >= .8),
+      size = .3
+    ) +
+  geom_line(
+      data = . %>% filter(lifeExp_stability <= .8),
+      size = 1.5,
+    )
+```
+
+    ## Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
+    ## ℹ Please use `linewidth` instead.
+
+![](c04-gapminder-assignment_files/figure-gfm/q5-additional-exploration-5.png)<!-- -->
+
+``` r
+gapminder %>%
+  ggplot(aes(x=lifeExp, y = gdpPercap, color = continent, label = country)) +
+    geom_point() +
+    geom_label_repel(
+      data = . %>% filter(gdpPercap > 58000),
+      show.legend = FALSE
+    )
+```
+
+![](c04-gapminder-assignment_files/figure-gfm/q5-additional-exploration-6.png)<!-- -->
+
+``` r
+no_kuwait <-
+  gapminder %>%
+  filter(country != "Kuwait") %>%
+  ggplot(aes(x=lifeExp, y = gdpPercap, color = continent, label = country)) +
+    geom_point()
+
+no_kuwait
+```
+
+![](c04-gapminder-assignment_files/figure-gfm/q5-additional-exploration-7.png)<!-- -->
+
+``` r
+no_kuwait + facet_wrap(~ year)
+```
+
+![](c04-gapminder-assignment_files/figure-gfm/q5-additional-exploration-8.png)<!-- -->
+
+``` r
+anim <-
+  no_kuwait +
+  transition_states(
+    year,
+    transition_length = 2,
+    state_length = 0,
+    wrap = FALSE
+  ) +
+  ease_aes('linear') +
+  ggtitle('{closest_state}')
+```
+
+``` r
+# animate(
+#   anim,
+#   fps = 24, duration = 5,
+#   width = 1920, height = 1080, units = "px",
+#   renderer = av_renderer()
+# )
+```
