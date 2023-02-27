@@ -24,7 +24,7 @@ Unlike exercises, **challenges will be graded**. The following rubrics define ho
 <!-- ------------------------- -->
 
 | Category    | Needs Improvement                                                                                                | Satisfactory                                                                                                               |
-|------------------|-----------------------------|-------------------------|
+|--------------|----------------------------|-------------------------------|
 | Effort      | Some task **q**'s left unattempted                                                                               | All task **q**'s attempted                                                                                                 |
 | Observed    | Did not document observations, or observations incorrect                                                         | Documented correct observations based on analysis                                                                          |
 | Supported   | Some observations not clearly supported by analysis                                                              | All observations clearly supported by analysis (table, graph, etc.)                                                        |
@@ -222,56 +222,97 @@ Now it's your turn! We just went through guided EDA considering the GDP per capi
 ### **q5** Create *at least* three new figures below. With each figure, try to pose new questions about the data.
 
 ```{r q5-misc-exploration}
+# 
+# gapminder %>%
+#   ggplot(aes(x=lifeExp, y = gdpPercap, color = continent, label = country)) +
+#     geom_point() +
+#     geom_label_repel(
+#       data = . %>% filter(gdpPercap > 58000),
+#       show.legend = FALSE
+#     )
+# 
+# no_kuwait <-
+#   gapminder %>%
+#   filter(country != "Kuwait") %>%
+#   ggplot(aes(x=lifeExp, y = gdpPercap, color = continent, label = country)) +
+#     geom_point()
+# 
+# no_kuwait
+# no_kuwait + facet_wrap(~ year)
+# 
+# 
+# anim <-
+#   no_kuwait + 
+#   transition_states(
+#     year,
+#     transition_length = 2,
+#     state_length = 0,
+#     wrap = FALSE
+#   ) +
+#   ease_aes('linear') +
+#   ggtitle('{closest_state}')
 
-gapminder %>%
-  ggplot(aes(x=lifeExp, y = gdpPercap, color = continent, label = country)) +
-    geom_point() +
-    geom_label_repel(
-      data = . %>% filter(gdpPercap > 58000),
-      show.legend = FALSE
-    )
+# animate(
+#   anim,
+#   fps = 24, duration = 5,
+#   width = 1920, height = 1080, units = "px",
+#   renderer = av_renderer()
+# )
 
-no_kuwait <-
-  gapminder %>%
-  filter(country != "Kuwait") %>%
-  ggplot(aes(x=lifeExp, y = gdpPercap, color = continent, label = country)) +
-    geom_point()
-
-no_kuwait
-no_kuwait + facet_wrap(~ year)
-
-
-anim <-
-  no_kuwait + 
-  transition_states(
-    year,
-    transition_length = 2,
-    state_length = 0,
-    wrap = FALSE
-  ) +
-  ease_aes('linear') +
-  ggtitle('{closest_state}')
-
+# time_cor <-
+#   gapminder %>%
+#   group_by(country) %>%
+#   mutate(
+#     rho_life = cor(year, lifeExp, method = "spearman"),
+#     rho_gdp = cor(year, gdpPercap, method = "spearman")
+#     )
 ```
 
 ```{r render-anim}
 
-animate(
-  anim,
-  fps = 24, duration = 5,
-  width = 1920, height = 1080, units = "px",
-  renderer = av_renderer()
-)
 ```
 
 ```{r q5-task1}
-## TASK: Your first graph
+gapminder %>%
+  filter(country != "Kuwait") %>%
+  filter(year == 2007) %>%
+  ggplot(aes(x=lifeExp, y = gdpPercap, color = continent, label = country)) +
+    geom_point() +
+    geom_label_repel(show.legend = FALSE, max.overlaps = 10)
+
+gapminder %>%
+  filter(year == 2007) %>%
+  arrange(lifeExp)
 ```
 
--   (Your notes and observations here)
+-   Obviously Kuwait is a huge outlier in terms of `gdpPercap`. There are 6 years where Kuwait has the highest `gdpPercap`, sometimes by a mile. I'll remove Kuwait to have a better view of everything else.
+-   There are a handful of countries at the top of `gdpPercap`. Ireland comes as a small suprise to me, and there are a handful of Asian countries scattered throughout the top of GDP and life expectancy with the European colonial powers.
+-   There are also a few African countries that stand out for having relatively high amounts of commercial activity relative to their population's life expectancy. This could be from especially high inequality (rich business people do lots of trade, but money doesn't reach the populace) or governmental corruption, or it could be *South Africa.*
+-   There is a point around 70 years `lifeExp` below which countries are generally very poor. Past this point, we see a huge range of `gdpPercap`. The lower region is almost entirely African with a handful of Asian countries.
+-   Afghanistan is the only Asian country well below 58 years `lifeExp` which makes sense with the United States doing United States things and all.
 
 ```{r q5-task2}
 ## TASK: Your second graph
+time_cor <-
+  gapminder %>%
+  group_by(country) %>%
+  mutate(
+    rho_year_life = cor(year, lifeExp, method = "spearman"),
+    rho_year_gdp = cor(year, gdpPercap, method = "spearman"),
+    rho_life_gdp = cor(lifeExp, gdpPercap, method = "spearman")
+    )
+
+time_cor %>%
+  ggplot(aes(x = continent, y = rho_year_life, color = continent)) +
+    geom_boxplot()
+
+time_cor %>%
+  ggplot(aes(x = continent, y = rho_year_gdp, color = continent)) +
+    geom_boxplot()
+
+time_cor %>%
+  ggplot(aes(x = continent, y = rho_life_gdp, color = continent)) +
+    geom_boxplot()
 ```
 
 -   (Your notes and observations here)
