@@ -153,8 +153,22 @@ In this visual you must show *all three* effectiveness values for *all
 positive or negative.
 
 ``` r
-# WRITE YOUR CODE HERE
+df_antibiotics_long <- 
+  df_antibiotics %>%
+  pivot_longer(
+    cols = !c(bacteria, gram),
+    names_to = "antibiotic",
+    values_to = "MIC"
+    )
+
+df_antibiotics_long %>%
+  ggplot(aes(x = antibiotic, color = bacteria, y = MIC, shape = gram)) + 
+    geom_point() +
+    geom_hline(yintercept = 0.1, linetype= "dashed", color = "red") + 
+    scale_y_log10()
 ```
+
+![](c05-antibiotics-assignment_files/figure-gfm/q1.1-1.png)<!-- -->
 
 #### Visual 2 (All variables)
 
@@ -166,8 +180,14 @@ Note that your visual must be *qualitatively different* from *all* of
 your other visuals.
 
 ``` r
-# WRITE YOUR CODE HERE
+df_antibiotics_long %>%
+  ggplot(aes(x = antibiotic, color = gram, y = MIC)) + 
+    geom_boxplot() +
+    geom_hline(yintercept = 0.1, linetype = "dashed") + 
+    scale_y_log10()
 ```
+
+![](c05-antibiotics-assignment_files/figure-gfm/q1.2-1.png)<!-- -->
 
 #### Visual 3 (Some variables)
 
@@ -179,8 +199,14 @@ Note that your visual must be *qualitatively different* from *all* of
 your other visuals.
 
 ``` r
-# WRITE YOUR CODE HERE
+df_antibiotics_long %>%
+  ggplot(aes(x = MIC, color = antibiotic)) + 
+  geom_density() + 
+  geom_vline(xintercept = 0.1) + 
+  scale_x_log10()
 ```
+
+![](c05-antibiotics-assignment_files/figure-gfm/q1.3-1.png)<!-- -->
 
 #### Visual 4 (Some variables)
 
@@ -192,8 +218,26 @@ Note that your visual must be *qualitatively different* from *all* of
 your other visuals.
 
 ``` r
-# WRITE YOUR CODE HERE
+df_antibiotics_long %>%
+  ggplot(aes(x = antibiotic, y = MIC)) + 
+    geom_point() + 
+    geom_point(
+      data = . %>% filter(bacteria == "Diplococcus pneumonia"),
+      color = "blue",
+      shape = 4,
+      size = 3
+    ) +
+    geom_point(
+      data = . %>% filter(bacteria %in% c(
+        "Streptococcus viridans",
+        "Streptococcus hemolyticus"
+      )),
+      color = "red"
+    ) + 
+  scale_y_log10()
 ```
+
+![](c05-antibiotics-assignment_files/figure-gfm/q1.4-1.png)<!-- -->
 
 #### Visual 5 (Some variables)
 
@@ -205,8 +249,17 @@ Note that your visual must be *qualitatively different* from *all* of
 your other visuals.
 
 ``` r
-# WRITE YOUR CODE HERE
+df_treats_humans <-
+df_antibiotics_long %>%
+  mutate(treats_humans = MIC < .1)
+
+df_treats_humans %>%
+  ggplot(aes(x = antibiotic, fill = treats_humans)) + 
+    geom_bar() + 
+    facet_wrap(~ gram)
 ```
+
+![](c05-antibiotics-assignment_files/figure-gfm/q1.5-1.png)<!-- -->
 
 ### **q2** Assess your visuals
 
@@ -227,10 +280,20 @@ opportunity to think about why this is.**
 > How do the three antibiotics vary in their effectiveness against
 > bacteria of different genera and Gram stain?
 
-*Observations* - What is your response to the question above? - (Write
-your response here) - Which of your visuals above (1 through 5) is
-**most effective** at helping to answer this question? - (Write your
-response here) - Why? - (Write your response here)
+*Observations* - What is your response to the question above? -
+*Neomycin* is effective against three tested gram negative and three
+tested gram positive bacteria. *Penicillin* is similarly effective and
+is suitable for treating six tested gram positive bacteria in humans.
+*Streptomycin* is only suitable for treating two gram positive bacteria
+in humans of those tested in our data. *Penicilin* is very effective
+against or sample of gram positive bacteria but useless against our
+sample of gram negative bacteria. - Which of your visuals above (1
+through 5) is **most effective** at helping to answer this question? -
+Visualization 5 - Why? - Our guiding question is about the effectiveness
+against different bacteria and based on the Gram stain, so we need to
+visualize those components of the data. Visualization 5 shows the
+proportion of bacteria each antibiotic is considered effective against
+and splits along Gram stain.
 
 #### Guiding Question 2
 
@@ -241,10 +304,14 @@ and in 1984 *Streptococcus fecalis* was renamed *Enterococcus fecalis*
 > Why was *Diplococcus pneumoniae* was renamed *Streptococcus
 > pneumoniae*?
 
-*Observations* - What is your response to the question above? - (Write
-your response here) - Which of your visuals above (1 through 5) is
-**most effective** at helping to answer this question? - (Write your
-response here) - Why? - (Write your response here)
+*Observations* - What is your response to the question above? -
+*Diplococcus pneumoniae* was renamed *Streptococcus pneumoniae* because
+it responds similarly to *Streptococcus hemolyticus* and *Streptococcus
+viridans* when exposed to the antibiotics *Neomycin*, *Penicillin*, and
+*Streptomycin*. - Which of your visuals above (1 through 5) is **most
+effective** at helping to answer this question? - Visual 4 - Why? -
+Visual 4 singles out the *Streptococcus* genus and shows the similar MIC
+values for each antibiotic.
 
 # References
 
