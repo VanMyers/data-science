@@ -87,6 +87,17 @@ library(tidyverse)
     ## ✖ dplyr::filter() masks stats::filter()
     ## ✖ dplyr::lag()    masks stats::lag()
 
+``` r
+library(zoo)
+```
+
+    ## 
+    ## Attaching package: 'zoo'
+    ## 
+    ## The following objects are masked from 'package:base':
+    ## 
+    ##     as.Date, as.Date.numeric
+
 *Background*: In 2014, some crazy Quebecois physicists estimated $\pi$
 with a pump-action shotgun\[1,2\]. Their technique was based on the
 *Monte Carlo method*, a general strategy for turning deterministic
@@ -192,19 +203,33 @@ set will estimate the probability of points landing in that area (see
 
 ``` r
 ## TASK: Choose a sample size and generate samples
-n <- NA_real_ # Choose a sample size
-df_q1 <- NA # Generate the data
+n <- 10000
+df_q1 <- 
+  tibble(
+    x = runif(n = n, min = 0, max = 1),
+    y = runif(n = n, min = 0, max = 1)
+  ) %>%
+  mutate(stat = as.integer(y <= sqrt(1 - x^2))*4)
 ```
 
 ### **q2** Using your data in `df_q1`, estimate $\pi$.
 
 ``` r
 ## TASK: Estimate pi using your data from q1
-pi_est <- NA_real_
+df_est <-
+  df_q1 %>%
+  mutate(stat_mean = cummean(stat))
+pi_est <- 
+  df_est %>%
+  select(stat_mean) %>%
+  tail(n = 1)
 pi_est
 ```
 
-    ## [1] NA
+    ## # A tibble: 1 × 1
+    ##   stat_mean
+    ##       <dbl>
+    ## 1      3.16
 
 # Quantifying Uncertainty
 
@@ -217,14 +242,103 @@ to assess your $\pi$ estimate.
 
 ### **q3** Using a CLT approximation, produce a confidence interval for your estimate of $\pi$. Make sure you specify your confidence level. Does your interval include the true value of $\pi$? Was your chosen sample size sufficiently large so as to produce a trustworthy answer?
 
+``` r
+ci <- .95
+ci_mult <- qnorm( 1 - (1 - ci) / 2 )
+
+df_ci <-
+df_est %>%
+  mutate(
+    n = as.integer(rownames(.)),
+    sd = rollapply(stat, 1:length(stat), sd, fill = NA, align = "right", partial = TRUE),
+    se = sd / sqrt(n),
+    ci_high = stat_mean + se * ci_mult,
+    ci_low = stat_mean - se * ci_mult,
+    include = as.integer((ci_low < pi) & (pi < ci_high)),
+  )
+
+df_ci$include[1] <- 1
+
+df_include <-
+df_ci %>%
+  mutate(p_include = cummean(include))
+```
+
+``` r
+df_ci %>% 
+  ggplot(aes(x = n)) +
+    geom_ribbon(aes(ymin = ci_low, ymax = ci_high), fill = "black", alpha = 0.5, color = NA) +
+    geom_line(aes(y = stat_mean), color = "black") + 
+    geom_hline(yintercept = pi, color = "red") +
+  ylim(0,4.5)
+```
+
+![](c07-monte-carlo-assignment_files/figure-gfm/q3-plot-1.png)<!-- -->
+
+``` r
+df_ci %>% 
+  ggplot(aes(x = n)) +
+    geom_ribbon(aes(ymin = ci_low, ymax = ci_high), fill = "black", alpha = 0.5, color = NA) +
+    geom_line(aes(y = stat_mean), color = "black") + 
+    geom_hline(yintercept = pi, color = "red") +
+  scale_x_continuous(limits = c(10, 10000), trans = "log10") +
+  ylim(0,4.5)
+```
+
+    ## Warning: Removed 9 rows containing missing values (`geom_line()`).
+
+![](c07-monte-carlo-assignment_files/figure-gfm/q3-plot-2.png)<!-- -->
+
+``` r
+df_include %>%
+  ggplot(aes(x = n, y = p_include)) +
+    geom_line() +
+    geom_hline(yintercept = ci, color = "red") +
+  ylim(0,1)
+```
+
+![](c07-monte-carlo-assignment_files/figure-gfm/q3-plot-3.png)<!-- -->
+
+``` r
+df_include %>%
+  ggplot(aes(x = n, y = p_include)) +
+    geom_line() +
+    geom_hline(yintercept = ci, color = "red") +
+  ylim(0,1) +
+  scale_x_log10()
+```
+
+![](c07-monte-carlo-assignment_files/figure-gfm/q3-plot-4.png)<!-- -->
+
 **Observations**:
 
 - Does your interval include the true value of $\pi$?
-  - (Your response here)
+  - This is a bit weird to answer given some of the ways I extended this
+    problem. It depends on the random seed and n value. It’s never
+    guaranteed that the confidence interval will include the true value
+    even at high values `n` . At 95%, I’ve noticed that the the
+    confidence interval includes the true value of `pi` for higher
+    values of `n` with most seeds, however, I have also seen seeds for
+    which the confidence interval does not include `pi` at high `n`
+    values. This makes sense because it’s not a 100% confidence
+    interval!
 - What confidence level did you choose?
-  - (Your response here)
+  - 95%
 - Was your sample size $n$ large enough? Why do you say that?
-  - (Your response here)
+  - I can’t really say what “large enough” means in this context. The
+    confidence interval is likely to include the true value for all
+    values `n` by nature of it’s purpose. Even `n = 10,000`, the
+    estimate is not consistently accurate to more than the tenths place,
+    which means it would require a far higher value of `n` to
+    approximate pi to a degree that is useful. I just calculated
+    approximated `pi` as `3.16 +/- .019` using a fabric tape measure and
+    my empty water glass and considering my measurement accuracy to be
+    +/- 1 mm. In this sense `n = 10,000` is not enough to provide a
+    useful result. At `n = 100,000,000`, simple measurement tools are
+    finally eclipsed. Precision tools could certainly do better than the
+    monte carlo estimate, which is still only accurate to +/- 1
+    thousandth. A 10 inch circle drawn with a compass and the same
+    measurement accuracy would estimate pi to `+/- .002`.
 
 # References
 
