@@ -161,11 +161,24 @@ df_antibiotics_long <-
     values_to = "MIC"
     )
 
-df_antibiotics_long %>%
-  ggplot(aes(x = antibiotic, color = bacteria, y = MIC, shape = gram)) + 
+df_antibiotics_abbr <-
+  df_antibiotics_long %>%
+  mutate(
+    abbr = gsub(
+      "^([A-Z]).+\\s+([a-z]+)\\b", 
+      "\\1. \\2", 
+      bacteria
+    ),
+    gram_factor = factor(gram)
+  )
+
+
+df_antibiotics_abbr %>%
+  ggplot(aes(y = bacteria, color = antibiotic, x = MIC, shape = gram)) + 
     geom_point() +
-    geom_hline(yintercept = 0.1, linetype= "dashed", color = "red") + 
-    scale_y_log10()
+    geom_vline(xintercept = 0.1, linetype = "dashed") + 
+    facet_wrap(~ antibiotic, ncol = 3) +
+    scale_x_log10()
 ```
 
 ![](c05-antibiotics-assignment_files/figure-gfm/q1.1-1.png)<!-- -->
@@ -180,12 +193,30 @@ Note that your visual must be *qualitatively different* from *all* of
 your other visuals.
 
 ``` r
-df_antibiotics_long %>%
-  ggplot(aes(x = antibiotic, color = gram, y = MIC)) + 
-    geom_boxplot() +
-    geom_hline(yintercept = 0.1, linetype = "dashed") + 
-    scale_y_log10()
+# df_antibiotics_abbr %>%
+#   ggplot(aes(y = 1, color = antibiotic, x = MIC, shape = gram)) + 
+#     geom_point() +
+#     geom_vline(xintercept = 0.1, linetype = "dashed") + 
+#     facet_wrap(~ abbr, ncol = 4) +
+#     scale_x_log10()
+
+df_antibiotics_abbr %>%
+  ggplot(aes(x = antibiotic, y = bacteria, fill = MIC)) +
+    geom_tile(color = "white", size = 0.5) +
+    scale_fill_gradient2(trans = "log10", 
+                       midpoint = log10(0.1), 
+                       limits = c(0.001, 870), 
+                       low = "blue", 
+                       high = "red", 
+                       name = "Value"
+                       ) +
+    geom_label(aes(label = round(MIC, 2), color = gram), fill = "white", size = 3) +
+    scale_color_manual(values = c("green", "red")) +
+    theme_minimal()
 ```
+
+    ## Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
+    ## ℹ Please use `linewidth` instead.
 
 ![](c05-antibiotics-assignment_files/figure-gfm/q1.2-1.png)<!-- -->
 
@@ -200,10 +231,10 @@ your other visuals.
 
 ``` r
 df_antibiotics_long %>%
-  ggplot(aes(x = MIC, color = antibiotic)) + 
-  geom_density() + 
-  geom_vline(xintercept = 0.1) + 
-  scale_x_log10()
+  ggplot(aes(x = antibiotic, color = gram, y = MIC)) + 
+    geom_boxplot() +
+    geom_hline(yintercept = 0.1, linetype = "dashed") + 
+    scale_y_log10()
 ```
 
 ![](c05-antibiotics-assignment_files/figure-gfm/q1.3-1.png)<!-- -->
@@ -305,13 +336,18 @@ and in 1984 *Streptococcus fecalis* was renamed *Enterococcus fecalis*
 > pneumoniae*?
 
 *Observations* - What is your response to the question above? -
-*Diplococcus pneumoniae* was renamed *Streptococcus pneumoniae* because
-it responds similarly to *Streptococcus hemolyticus* and *Streptococcus
-viridans* when exposed to the antibiotics *Neomycin*, *Penicillin*, and
-*Streptomycin*. - Which of your visuals above (1 through 5) is **most
-effective** at helping to answer this question? - Visual 4 - Why? -
-Visual 4 singles out the *Streptococcus* genus and shows the similar MIC
-values for each antibiotic.
+*Diplococcus pneumoniae* responds similarly to *Streptococcus
+hemolyticus* and *Streptococcus viridans* when exposed to the
+antibiotics *Neomycin*, *Penicillin*, and *Streptomycin*. Bacteria with
+similar `MIC` scores may have similar underlying structures and
+therefore be most appropriately grouped in the same genus The `MIC`
+score, and how bacteria interact with antibiotics, is related to the
+underlying structure of bacteria which determines genus. For example,
+properties like gram positivity, shape, metabalism and chemisrty may be
+used to define a genus. - Which of your visuals above (1 through 5) is
+**most effective** at helping to answer this question? - Visual 4 -
+Why? - Visual 4 singles out the *Streptococcus* genus and shows the
+similar MIC values for each antibiotic.
 
 # References
 
