@@ -24,7 +24,7 @@ Unlike exercises, **challenges will be graded**. The following rubrics define ho
 <!-- ------------------------- -->
 
 | Category    | Needs Improvement                                                                                                | Satisfactory                                                                                                               |
-|--------------|----------------------------|-------------------------------|
+|------------------|--------------------------|----------------------------|
 | Effort      | Some task **q**'s left unattempted                                                                               | All task **q**'s attempted                                                                                                 |
 | Observed    | Did not document observations, or observations incorrect                                                         | Documented correct observations based on analysis                                                                          |
 | Supported   | Some observations not clearly supported by analysis                                                              | All observations clearly supported by analysis (table, graph, etc.)                                                        |
@@ -109,29 +109,33 @@ print("Nice!")
 
 You may encounter difficulties in visualizing these data; if so document your challenges and attempt to produce the most informative visual you can.
 
-```{r q2-task, message=TRUE, warning=TRUE}
+```{r q2-task}
 ## TASK: Create a visual of gdpPercap vs continent
 gapminder %>%
   filter(year == year_min) %>%
-  filter(gdpPercap < 30000) %>%
   ggplot(aes(x = gdpPercap, color = continent)) +
-    geom_density()
+    geom_density() +
+  scale_x_log10()
 
 gapminder %>%
   filter(year == year_min) %>%
-  filter(gdpPercap < 30000) %>%
   ggplot(aes(x = gdpPercap, color = continent)) +
-    geom_boxplot()
+    geom_boxplot() +
+  scale_x_log10()
+
 ```
 
 **Observations**:
 
--   Write your observations here
+-   Each continent has countries that vary greatly in GDP except Oceania.
+    -   In this dataset Oceania is only Australia and New Zealand
+-   Europe and the Americas are substantially wealthier than Africa and Asia in 1952
 
 **Difficulties & Approaches**:
 
 -   `geom_density` is not a particularly useful visualization because the outliers extend the axis beyond the bulk of the distribution.
-    -   I filtered out the high gdp countries to address this
+    -   I initially filtered out the highest gdp country to address this
+    -   Using a log scale on the `x` axis produces a better visualization, but the `geom_density` is still poorly suited to this task.
 -   A boxplot is an overall better visualization. It handles the one extreme value very well but still benefits from the same filter to expand the useful real estate for the rest of the visualization.
 
 ### **q3** You should have found *at least* three outliers in q2 (but possibly many more!). Identify those outliers (figure out which countries they are).

@@ -26,7 +26,7 @@ Unlike exercises, **challenges will be graded**. The following rubrics define ho
 <!-- ------------------------- -->
 
 | Category    | Needs Improvement                                                                                                | Satisfactory                                                                                                               |
-|-------------|------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------|
+|--------------|----------------------------|-------------------------------|
 | Effort      | Some task **q**'s left unattempted                                                                               | All task **q**'s attempted                                                                                                 |
 | Observed    | Did not document observations, or observations incorrect                                                         | Documented correct observations based on analysis                                                                          |
 | Supported   | Some observations not clearly supported by analysis                                                              | All observations clearly supported by analysis (table, graph, etc.)                                                        |
@@ -141,6 +141,9 @@ print("Very good!")
 df_stang_long
 
 df_stang_long %>%
+  distinct(alloy)
+
+df_stang_long %>%
   group_by(thick) %>%
   summarise(E = mean(E), nu = mean(nu))
 ```
@@ -151,7 +154,7 @@ df_stang_long %>%
     -   It appears there is no "one true value" for either property, but we can not draw this conclusion confidently. This dataset contains so few observations that any small differences are likely beyond statistical significance. What is clear is that the thickest sheet displays different material properties than the thinner sheets in these tests.
     -   Knowing what I do about aluminum (we don't define these properties based on thickness) I personally assume there may be a limit to the measurement setup that introduced an error.
 -   How many aluminum alloys are in this dataset? How do you know?
-    -   There is only one distinct alloy, 2024 (24ST)
+    -   There is only one distinct alloy, 2024 (24ST). I manually inspected the data and confirmed there was one value for alloy with code.
 -   What angles were tested?
     -   0, 45, and 90 deg
 -   What thicknesses were tested?

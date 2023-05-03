@@ -208,9 +208,9 @@ can.
 ## TASK: Create a visual of gdpPercap vs continent
 gapminder %>%
   filter(year == year_min) %>%
-  filter(gdpPercap < 30000) %>%
   ggplot(aes(x = gdpPercap, color = continent)) +
-    geom_density()
+    geom_density() +
+  scale_x_log10()
 ```
 
 ![](c04-gapminder-assignment_files/figure-gfm/q2-task-1.png)<!-- -->
@@ -218,22 +218,27 @@ gapminder %>%
 ``` r
 gapminder %>%
   filter(year == year_min) %>%
-  filter(gdpPercap < 30000) %>%
   ggplot(aes(x = gdpPercap, color = continent)) +
-    geom_boxplot()
+    geom_boxplot() +
+  scale_x_log10()
 ```
 
 ![](c04-gapminder-assignment_files/figure-gfm/q2-task-2.png)<!-- -->
 
 **Observations**:
 
-- Write your observations here
+- Each continent has countries that vary greatly in GDP except Oceania.
+  - In this dataset Oceania is only Australia and New Zealand
+- Europe and the Americas are substantially wealthier than Africa and
+  Asia in 1952
 
 **Difficulties & Approaches**:
 
 - `geom_density` is not a particularly useful visualization because the
   outliers extend the axis beyond the bulk of the distribution.
-  - I filtered out the high gdp countries to address this
+  - I initially filtered out the highest gdp country to address this
+  - Using a log scale on the `x` axis produces a better visualization,
+    but the `geom_density` is still poorly suited to this task.
 - A boxplot is an overall better visualization. It handles the one
   extreme value very well but still benefits from the same filter to
   expand the useful real estate for the rest of the visualization.

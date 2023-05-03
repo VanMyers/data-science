@@ -275,6 +275,16 @@ df_stang_long
 
 ``` r
 df_stang_long %>%
+  distinct(alloy)
+```
+
+    ## # A tibble: 1 × 1
+    ##   alloy  
+    ##   <chr>  
+    ## 1 al_24st
+
+``` r
+df_stang_long %>%
   group_by(thick) %>%
   summarise(E = mean(E), nu = mean(nu))
 ```
@@ -300,7 +310,8 @@ df_stang_long %>%
     based on thickness) I personally assume there may be a limit to the
     measurement setup that introduced an error.
 - How many aluminum alloys are in this dataset? How do you know?
-  - There is only one distinct alloy, 2024 (24ST)
+  - There is only one distinct alloy, 2024 (24ST). I manually inspected
+    the data and confirmed there was one value for alloy with code.
 - What angles were tested?
   - 0, 45, and 90 deg
 - What thicknesses were tested?
