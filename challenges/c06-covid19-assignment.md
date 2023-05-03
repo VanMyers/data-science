@@ -517,8 +517,9 @@ df_counts %>%
 ``` r
 ## TASK: Find the top 10 max cases_per100k counties; report populations as well
 df_counts %>%
-  group_by(county) %>%
+  group_by(fips) %>%
   select(
+    fips,
     county,
     cases_per100k,
     population
@@ -526,27 +527,28 @@ df_counts %>%
   arrange(desc(cases_per100k))
 ```
 
-    ## # A tibble: 3,258 × 3
-    ## # Groups:   county [1,932]
-    ##    county                   cases_per100k population
-    ##    <chr>                            <dbl>      <int>
-    ##  1 Loving                         192157.        102
-    ##  2 Chattahoochee                   69527.      10767
-    ##  3 Nome Census Area                62922.       9925
-    ##  4 Northwest Arctic Borough        62542.       7734
-    ##  5 Crowley                         59449.       5630
-    ##  6 Bethel Census Area              57439.      18040
-    ##  7 Dewey                           54317.       5779
-    ##  8 Dimmit                          54019.      10663
-    ##  9 Jim Hogg                        50133.       5282
-    ## 10 Kusilvak Census Area            49817.       8198
+    ## # A tibble: 3,258 × 4
+    ## # Groups:   fips [3,221]
+    ##    fips  county                   cases_per100k population
+    ##    <chr> <chr>                            <dbl>      <int>
+    ##  1 48301 Loving                         192157.        102
+    ##  2 13053 Chattahoochee                   69527.      10767
+    ##  3 02180 Nome Census Area                62922.       9925
+    ##  4 02188 Northwest Arctic Borough        62542.       7734
+    ##  5 08025 Crowley                         59449.       5630
+    ##  6 02050 Bethel Census Area              57439.      18040
+    ##  7 46041 Dewey                           54317.       5779
+    ##  8 48127 Dimmit                          54019.      10663
+    ##  9 48247 Jim Hogg                        50133.       5282
+    ## 10 02158 Kusilvak Census Area            49817.       8198
     ## # … with 3,248 more rows
 
 ``` r
 ## TASK: Find the top 10 deaths_per100k counties; report populations as well
 df_counts %>%
-  group_by(county) %>%
+  group_by(fips) %>%
   select(
+    fips,
     county,
     deaths_per100k,
     population
@@ -554,20 +556,20 @@ df_counts %>%
   arrange(desc(deaths_per100k))
 ```
 
-    ## # A tibble: 3,258 × 3
-    ## # Groups:   county [1,932]
-    ##    county            deaths_per100k population
-    ##    <chr>                      <dbl>      <int>
-    ##  1 McMullen                   1360.        662
-    ##  2 Galax city                 1175.       6638
-    ##  3 Motley                     1125.       1156
-    ##  4 Hancock                    1054.       8535
-    ##  5 Emporia city               1022.       5381
-    ##  6 Towns                      1016.      11417
-    ##  7 Jerauld                     986.       2029
-    ##  8 Loving                      980.        102
-    ##  9 Robertson                   980.       2143
-    ## 10 Martinsville city           946.      13101
+    ## # A tibble: 3,258 × 4
+    ## # Groups:   fips [3,221]
+    ##    fips  county            deaths_per100k population
+    ##    <chr> <chr>                      <dbl>      <int>
+    ##  1 48311 McMullen                   1360.        662
+    ##  2 51640 Galax city                 1175.       6638
+    ##  3 48345 Motley                     1125.       1156
+    ##  4 13141 Hancock                    1054.       8535
+    ##  5 51595 Emporia city               1022.       5381
+    ##  6 13281 Towns                      1016.      11417
+    ##  7 46073 Jerauld                     986.       2029
+    ##  8 48301 Loving                      980.        102
+    ##  9 21201 Robertson                   980.       2143
+    ## 10 51690 Martinsville city           946.      13101
     ## # … with 3,248 more rows
 
 **Observations**:

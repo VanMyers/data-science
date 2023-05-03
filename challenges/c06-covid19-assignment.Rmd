@@ -305,8 +305,9 @@ df_counts %>%
 
 ## TASK: Find the top 10 max cases_per100k counties; report populations as well
 df_counts %>%
-  group_by(county) %>%
+  group_by(fips) %>%
   select(
+    fips,
     county,
     cases_per100k,
     population
@@ -315,8 +316,9 @@ df_counts %>%
 
 ## TASK: Find the top 10 deaths_per100k counties; report populations as well
 df_counts %>%
-  group_by(county) %>%
+  group_by(fips) %>%
   select(
+    fips,
     county,
     deaths_per100k,
     population
