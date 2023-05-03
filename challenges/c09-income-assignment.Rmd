@@ -26,7 +26,7 @@ Unlike exercises, **challenges will be graded**. The following rubrics define ho
 <!-- ------------------------- -->
 
 | Category    | Needs Improvement                                                                                                | Satisfactory                                                                                                               |
-|-------------------|-----------------------------|-------------------------|
+|-------------------|----------------------------|-------------------------|
 | Effort      | Some task **q**'s left unattempted                                                                               | All task **q**'s attempted                                                                                                 |
 | Observed    | Did not document observations, or observations incorrect                                                         | Documented correct observations based on analysis                                                                          |
 | Supported   | Some observations not clearly supported by analysis                                                              | All observations clearly supported by analysis (table, graph, etc.)                                                        |
@@ -234,7 +234,7 @@ One last wrangling step: We need to join the two datasets so we can compare popu
 ```{r q5-task}
 ## TODO: Join df_q4 and df_pop by the appropriate column
 df_data <-
-  left_join(df_q4, df_pop)
+  left_join(df_q4, df_pop, by = c("id", "geographic_area_name"))
 df_data
 ```
 
@@ -301,7 +301,7 @@ df_data %>%
 **Observations**:
 
 -   What *overall* trend do you see between `SE` and population? Why might this trend exist?
-    -   Counties with higher populations tend to have a lower `SE`. This trend may exist because $SE = \frac{\sigma}{\sqrt{n}}$ meaning a higher population will reduce the `SE` if the standard deviation does not also change.
+    -   Counties with higher populations tend to have a lower `SE`. This trend may exist because $SE = \frac{\sigma}{\sqrt{n}}$ meaning a higher sample size will reduce the `SE` if the standard deviation does not also change. The Census Bureau uses oversampling so sample size is not directly proportional to population size, but the two are still correlated.
 -   What does this *overall* trend tell you about the relative ease of studying small vs large counties?
     -   We will have far greater confidence when studying large counties meaning it is relatively easier to test hypothesis about these counties.
 

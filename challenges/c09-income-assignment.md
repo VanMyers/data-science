@@ -487,12 +487,7 @@ compare population with income.
 ``` r
 ## TODO: Join df_q4 and df_pop by the appropriate column
 df_data <-
-  left_join(df_q4, df_pop)
-```
-
-    ## Joining, by = c("id", "geographic_area_name")
-
-``` r
+  left_join(df_q4, df_pop, by = c("id", "geographic_area_name"))
 df_data
 ```
 
@@ -594,8 +589,10 @@ df_data %>%
   this trend exist?
   - Counties with higher populations tend to have a lower `SE`. This
     trend may exist because $SE = \frac{\sigma}{\sqrt{n}}$ meaning a
-    higher population will reduce the `SE` if the standard deviation
-    does not also change.
+    higher sample size will reduce the `SE` if the standard deviation
+    does not also change. The Census Bureau uses oversampling so sample
+    size is not directly proportional to population size, but the two
+    are still correlated.
 - What does this *overall* trend tell you about the relative ease of
   studying small vs large counties?
   - We will have far greater confidence when studying large counties
