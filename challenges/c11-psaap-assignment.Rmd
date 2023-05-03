@@ -43,8 +43,16 @@ library(broom)
 library(ppcor)
 library(randomForest)
 library(leaps)
+library(extrafont)
+
+dir.create("fonts")
+
+# font_add_google("Space Mono", family = "SpaceMono")
+# font_import(pattern = "Space Mono")
+# loadfonts(device = "win")
 
 select <- dplyr::select
+theme_set(theme_minimal(base_family = "Space Mono"))
 
 
 ## Helper function to compute uncertainty bounds
@@ -327,7 +335,6 @@ df_inputs %>%
   ggplot(aes(variable1, variable2, fill = covariance)) +
     geom_tile() +
     scale_fill_gradient2(low = "blue", mid = "white", high = "red", midpoint = 0) +
-    theme_minimal() +
     theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
@@ -556,7 +563,6 @@ df_intervals %>%
   ) +
 
   facet_grid(~method) +
-  theme_minimal() +
   labs(
     x = "Channel Location (-)",
     y = "Normalized Temperature Rise (-)"
@@ -603,7 +609,6 @@ bind_rows(
   geom_point() +
   
   facet_grid(~ model, labeller = label_both) +
-  theme_minimal() +
   labs(
     title = "Predicted vs Actual",
     x = "Actual T_norm",

@@ -283,9 +283,10 @@ df_no_age %>%
 - This plot says all first and seconds class passengers survived which I
   suspect is wrong.
 - About 87% of female crew members survived.
-- Male crew members were less likely to survive than male 3rd class
-  passengers while the opposite was true for female 3rd class passengers
-  and crew members.
+- From the first plot, it appears male crew members were less likely to
+  survive than male 3rd class passengers while the opposite was true for
+  female 3rd class passengers and crew members. Actually, crew are more
+  likely to survive than 3rd class passengers for both sexes.
 - Is there anything *fishy* going on in your plot?
   - Simple subsitution is not sufficient. Prop is calculated within
     Class, Sex, and Age but the plot is adding proportions within Sex.

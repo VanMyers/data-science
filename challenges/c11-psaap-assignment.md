@@ -159,7 +159,24 @@ library(leaps)
     ## Warning: package 'leaps' was built under R version 4.2.3
 
 ``` r
+library(extrafont)
+```
+
+    ## Registering fonts with R
+
+``` r
+dir.create("fonts")
+```
+
+    ## Warning in dir.create("fonts"): 'fonts' already exists
+
+``` r
+# font_add_google("Space Mono", family = "SpaceMono")
+# font_import(pattern = "Space Mono")
+# loadfonts(device = "win")
+
 select <- dplyr::select
+theme_set(theme_minimal(base_family = "Space Mono"))
 
 
 ## Helper function to compute uncertainty bounds
@@ -517,7 +534,7 @@ print_model <- function(model) {
 print_model(rf_all)
 ```
 
-    ## Model:  rf_all ,  Training R^2:  0.9023 ,  Validation R^2:  0.4117
+    ## Model:  rf_all ,  Training R^2:  0.9079 ,  Validation R^2:  0.4149
 
 ``` r
 print_model(lm_all)
@@ -566,7 +583,6 @@ df_inputs %>%
   ggplot(aes(variable1, variable2, fill = covariance)) +
     geom_tile() +
     scale_fill_gradient2(low = "blue", mid = "white", high = "red", midpoint = 0) +
-    theme_minimal() +
     theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
@@ -811,7 +827,6 @@ df_intervals %>%
   ) +
 
   facet_grid(~method) +
-  theme_minimal() +
   labs(
     x = "Channel Location (-)",
     y = "Normalized Temperature Rise (-)"
@@ -882,7 +897,6 @@ bind_rows(
   geom_point() +
   
   facet_grid(~ model, labeller = label_both) +
-  theme_minimal() +
   labs(
     title = "Predicted vs Actual",
     x = "Actual T_norm",

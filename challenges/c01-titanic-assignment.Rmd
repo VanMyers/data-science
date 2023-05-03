@@ -26,7 +26,7 @@ Unlike exercises, **challenges will be graded**. The following rubrics define ho
 <!-- ------------------------- -->
 
 | Category    | Needs Improvement                                                                                                | Satisfactory                                                                                                               |
-|------------------|-----------------------------|-------------------------|
+|-------------|------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------|
 | Effort      | Some task **q**'s left unattempted                                                                               | All task **q**'s attempted                                                                                                 |
 | Observed    | Did not document observations, or observations incorrect                                                         | Documented correct observations based on analysis                                                                          |
 | Supported   | Some observations not clearly supported by analysis                                                              | All observations clearly supported by analysis (table, graph, etc.)                                                        |
@@ -159,7 +159,7 @@ df_no_age %>%
 
 -   This plot says all first and seconds class passengers survived which I suspect is wrong.
 -   About 87% of female crew members survived.
--   Male crew members were less likely to survive than male 3rd class passengers while the opposite was true for female 3rd class passengers and crew members.
+-   From the first plot, it appears male crew members were less likely to survive than male 3rd class passengers while the opposite was true for female 3rd class passengers and crew members. Actually, crew are more likely to survive than 3rd class passengers for both sexes.
 -   Is there anything *fishy* going on in your plot?
     -   Simple subsitution is not sufficient. Prop is calculated within Class, Sex, and Age but the plot is adding proportions within Sex. This results in proportions that appear to be 1 because `ggplot` sees the `Prop` values for children first and plots those. Changing the position to `dodge` to more appropriately display proportions does not fix this. The plot isn't appropriate, but it appears I am not supposed to fix this until the next part.
 
